@@ -10,11 +10,9 @@ A PyTorch implementation of Denoising Diffusion Probabilistic Models (DDPM) usin
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Training](#training)
-- [Inference](#inference)
 - [Notebooks](#notebooks)
 - [Project Details](#project-details)
 - [Acknowledgements](#acknowledgements)
-- [License](#license)
 
 ## Overview
 
@@ -23,7 +21,12 @@ This repository provides a clean PyTorch implementation of the DDPM framework wi
 - Residual U-Net architecture
 - Optional self-attention layers
 
-The model is trained on the CelebA dataset of face images and can generate new samples by reversing the diffusion process.
+Here is an example animation of diffusion sampling (epoch 100):
+
+https://github.com/user-attachments/assets/0b262b6b-8c11-40dd-a58f-e67ba857ea71
+
+https://github.com/user-attachments/assets/f9a789ff-7b88-4757-b448-6454c739e6e2
+
 
 ## Features
 
@@ -39,27 +42,7 @@ Reference diagram of the U-Net backbone used in this project:
 
 ![U-Net Architecture](assets/U-net.png)
 
-## Repository Structure
 
-```
-ddpm/
-├── Models/                 # Model checkpoints & TensorBoard logs
-├── Data/                   # Datasets (CelebA download)
-├── Configs/                # YAML configuration files
-├── Modules/                # Custom modules (embeddings, etc.)
-├── diffusion/              # DDPM scheduler implementation
-├── models.py               # U-Net, ResBlock, embeddings, attention
-├── attention.py            # Multi-head self-attention layer
-├── train.py                # Training script
-├── inference.py            # Sampling/inference script
-├── inference.ipynb         # Notebook for step-by-step inference
-├── modules.ipynb           # Notebook exploring module components
-├── play.ipynb              # Experimental playground notebook
-├── pyproject.toml          # Project metadata & dependencies
-├── uv.lock                 # Locked dependencies (uv tool)
-├── .gitignore
-└── README.md               # This file
-```
 
 ## Prerequisites
 
@@ -89,13 +72,29 @@ python train.py --config Configs/config.yaml
 - Training logs are written to `Models/tensorboard/` (viewable via `tensorboard --logdir Models/tensorboard`).
 ## Outputs
 
-Here is an example animation of diffusion sampling (epoch 100):
 
-<video controls loop autoplay muted width="400">
-  <source src="outputs/e_100_3_3.mp4" type="video/mp4" />
-  Your browser does not support the video tag.
-</video>
 
+## Repository Structure
+
+```
+ddpm/
+├── Models/                 # Model checkpoints & TensorBoard logs
+├── Data/                   # Datasets (CelebA download)
+├── Configs/                # YAML configuration files
+├── Modules/                # Custom modules (embeddings, etc.)
+├── diffusion/              # DDPM scheduler implementation
+├── models.py               # U-Net, ResBlock, embeddings, attention
+├── attention.py            # Multi-head self-attention layer
+├── train.py                # Training script
+├── inference.py            # Sampling/inference script
+├── inference.ipynb         # Notebook for step-by-step inference
+├── modules.ipynb           # Notebook exploring module components
+├── play.ipynb              # Experimental playground notebook
+├── pyproject.toml          # Project metadata & dependencies
+├── uv.lock                 # Locked dependencies (uv tool)
+├── .gitignore
+└── README.md               # This file
+```
 
 ## Notebooks
 
