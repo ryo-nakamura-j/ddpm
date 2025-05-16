@@ -39,30 +39,37 @@ def train(batch_size: int,
     set_seed(random.randint(0, 2**32-1)) if seed == -1 else set_seed(seed)
 
     # CelebA → 218×178 → square 176×176 → no resize
-    image_size = 176
-    tfm = transforms.Compose([
-        transforms.CenterCrop(178),           # 218×178 → 178×178
-        transforms.CenterCrop(image_size),    # 178×178 → 176×176
-        transforms.ToTensor(),
-        transforms.Normalize([0.5]*3, [0.5]*3),
-    ])
-    train_dataset = CelebA(root='./Data',
-                           split='train', download=False,
-                           transform=tfm)
+    # image_size = 176
+    # tfm = transforms.Compose([
+    #     transforms.CenterCrop(178),           # 218×178 → 178×178
+    #     transforms.CenterCrop(image_size),    # 178×178 → 176×176
+    #     transforms.ToTensor(),
+    #     transforms.Normalize([0.5]*3, [0.5]*3),
+    # ])
+    # train_dataset = CelebA(root='./Data',
+    #                        split='train', download=True,
+    #                        transform=tfm)
+    # train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=4)
+    train_dataset = datasets.MNIST(root='./Data', train=True, download=True,transform=transforms.ToTensor())
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=4)
 
     scheduler = DDPM_Scheduler(num_time_steps=num_time_steps)
-    model = UNET(input_channels=3,
-                 output_channels=3,
+    # model = UNET(input_channels=3,
+    model = UNET(input_channels=1,
+                 output_channels=1,
                  time_steps=num_time_steps).cuda()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     ema = ModelEmaV3(model, decay=ema_decay)
 
     if checkpoint_path is not None:
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint['weights'])
-        ema.load_state_dict(checkpoint['ema'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        print(f"Loading checkpoint from {checkpoint_path}")
+        ckpt = torch.load(checkpoint_path)        # torch.load is Python-pickle under the hood
+        model.load_state_dict(ckpt['weights'])     # load model params
+        optimizer.load_state_dict(ckpt['optimizer'])
+        ema.load_state_dict(ckpt['ema'])
+        # pull out the epoch we last completed
+        start_epoch = ckpt.get('epoch', 0)
+        print(f"Resuming from epoch {start_epoch}")
     criterion = nn.MSELoss(reduction='mean')
 
     # prepare logging & checkpoints
@@ -76,7 +83,7 @@ def train(batch_size: int,
         total_loss = 0
         for bidx, (x,_) in enumerate(tqdm(train_loader, desc=f"Epoch {i+1}/{num_epochs}")):
             x = x.cuda()
-            # x = F.pad(x, (2,2,2,2))
+            x = F.pad(x, (2,2,2,2))
             t = torch.randint(0,num_time_steps,(batch_size,))
             e = torch.randn_like(x, requires_grad=False)
             a = scheduler.alpha[t].view(batch_size,1,1,1).cuda()
@@ -99,9 +106,12 @@ def train(batch_size: int,
 
         if (i+1) % save_every == 0:
             checkpoint = {
-                'weights': model.state_dict(),
+                'weights':   model.state_dict(),
                 'optimizer': optimizer.state_dict(),
-                'ema': ema.state_dict()
+                'ema':       ema.state_dict(),
+                'scheduler': scheduler.state_dict(),
+                'global_step': global_step,
+                'epoch':      i+1      # record which epoch we just finished
             }
             torch.save(checkpoint, f'{checkpoint_dir}/{checkpoint_prefix}_epoch_{i+1}.pth')
 
@@ -109,7 +119,8 @@ def train(batch_size: int,
     final_ckpt = {
         'weights':   model.state_dict(),
         'optimizer': optimizer.state_dict(),
-        'ema':       ema.state_dict()
+        'ema':       ema.state_dict(),
+        'epoch':    num_epochs,
     }
     torch.save(final_ckpt,
                os.path.join(checkpoint_dir, f"{checkpoint_prefix}_final.pt"))
