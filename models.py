@@ -73,15 +73,18 @@ class UnetLayer(nn.Module):
 
 class UNET(nn.Module):
     def __init__(self,
-            # Channels: List = [64, 128, 256, 512, 512, 384],
-            Channels: List = [32, 64, 128, 256, 256, 192],
-            Attentions: List = [False, False, False, False, False, False],
+            Channels: List = [64, 128, 256, 512, 512, 384],
+            # Channels: List = [32, 64, 128, 256, 256, 192],
+            # Attentions: List = [False, False, False, False, False, False],
+            Attentions: List = [False, False, True, False, False, True],
             Upscales: List = [False, False, False, True, True, True],
             num_groups: int = 32,
             dropout_prob: float = 0.1,
             num_heads: int = 8,
-            input_channels: int = 3,
-            output_channels: int = 3,
+            input_channels: int = 1,
+            # input_channels: int = 3,
+            output_channels: int = 1,
+            # output_channels: int = 3,
             time_steps: int = 1000):
         super().__init__()
         self.num_layers = len(Channels)
