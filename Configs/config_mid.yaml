@@ -6,7 +6,7 @@ train:
   ema_decay:        0.9999
   lr:               0.0001
   save_every:       5           # save every N epochs
-  checkpoint_dir:   "Models/checkpoints"
-  checkpoint_path:  "Models/checkpoints/celeba_epoch_100.pth"
-  checkpoint_prefix: "celeba"
-  log_dir:          "Models/tensorboard"
+  checkpoint_dir:   "Models/checkpoints_mid"
+  # checkpoint_path:  "Models/checkpoints/celeba_epoch_20.pth"
+  checkpoint_prefix: "celeba_mid"
+  log_dir:          "Models/tensorboard_mid"

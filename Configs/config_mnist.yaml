@@ -1,0 +1,12 @@
+train:
+  batch_size:       64
+  num_time_steps:   1000
+  num_epochs:       10
+  seed:             42
+  ema_decay:        0.9999
+  lr:               0.0001
+  save_every:       2          # save every N epochs
+  checkpoint_dir:   "Models/checkpoints/mnist"
+  checkpoint_path:  "Models/checkpoints/mnist/mnist_epoch_10.pth"
+  checkpoint_prefix: "mnist"
+  log_dir:          "Models/tensorboard/mnist"
